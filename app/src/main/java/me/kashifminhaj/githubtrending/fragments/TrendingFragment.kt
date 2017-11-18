@@ -3,11 +3,17 @@ package me.kashifminhaj.githubtrending.fragments
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import me.kashifminhaj.githubtrending.R
+import me.kashifminhaj.githubtrending.adapters.TrendingListAdapter
+import me.kashifminhaj.githubtrending.apis.GithubApi
 
 
 /**
@@ -17,16 +23,13 @@ import me.kashifminhaj.githubtrending.R
  */
 class TrendingFragment : Fragment() {
 
-    // TODO: Rename and change types of parameters
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    val api: GithubApi by lazy {
+        GithubApi.create()
+    }
+    var recylerView: RecyclerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            mParam1 = arguments.getString(ARG_PARAM1)
-            mParam2 = arguments.getString(ARG_PARAM2)
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
@@ -35,29 +38,30 @@ class TrendingFragment : Fragment() {
         return inflater!!.inflate(R.layout.fragment_trending, container, false)
     }
 
-    companion object {
-        // TODO: Rename parameter arguments, choose names that match
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        recylerView = view?.findViewById<RecyclerView>(R.id.trendingRecylerView)
+        getTrending()
+    }
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TrendingFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): TrendingFragment {
+    fun getTrending() {
+        api.getTrendingWeekly("created:>2017-11-17")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    Log.d("trending", "got reponse :)")
+                    recylerView?.adapter = TrendingListAdapter(it.items)
+                    recylerView?.layoutManager = LinearLayoutManager(context)
+                    if(recylerView == null)
+                        Log.d("trendng", "null")
+                }
+    }
+
+    companion object {
+        fun newInstance(): TrendingFragment {
             val fragment = TrendingFragment()
-            val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
-            fragment.arguments = args
             return fragment
         }
     }
 
-}// Required empty public constructor
+}

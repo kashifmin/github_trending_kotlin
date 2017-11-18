@@ -10,7 +10,7 @@ object Models {
             @SerializedName("full_name") val fullName: String,
             @SerializedName("url") val url: String,
             @SerializedName("stargazers_count") val stars: Int,
-            @SerializedName("description") val description: String,
+            @SerializedName("description") val description: String?,
             @SerializedName("language") val language: String
     )
     data class TrendingResponse(
