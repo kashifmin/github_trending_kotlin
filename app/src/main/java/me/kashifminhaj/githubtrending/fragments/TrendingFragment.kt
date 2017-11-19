@@ -9,11 +9,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import me.kashifminhaj.githubtrending.R
 import me.kashifminhaj.githubtrending.adapters.TrendingListAdapter
 import me.kashifminhaj.githubtrending.apis.GithubApi
+import me.kashifminhaj.githubtrending.apis.Models
+import me.kashifminhaj.githubtrending.db.database
+import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
 
 
 /**
@@ -21,12 +26,13 @@ import me.kashifminhaj.githubtrending.apis.GithubApi
  * Use the [TrendingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class TrendingFragment : Fragment() {
+class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListener {
 
     val api: GithubApi by lazy {
         GithubApi.create()
     }
     var recylerView: RecyclerView? = null
+    var adapter: TrendingListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,11 +56,31 @@ class TrendingFragment : Fragment() {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
                     Log.d("trending", "got reponse :)")
-                    recylerView?.adapter = TrendingListAdapter(it.items)
+                    filterFavorites(it.items)
+                    adapter = TrendingListAdapter(it.items, this)
+                    recylerView?.adapter = adapter
                     recylerView?.layoutManager = LinearLayoutManager(context)
-                    if(recylerView == null)
-                        Log.d("trendng", "null")
+
                 }
+    }
+
+    fun filterFavorites(items: List<Models.TrendingItem>) {
+        val favs = this.context.database.getFavoritesAsSet()
+        items.map { it.isFavorite = it.id in favs }
+    }
+
+    override fun onToggle(item: Models.TrendingItem, btn: ImageView) {
+        if(!item.isFavorite)
+            doAsync {
+                context.database.setAsFavorite(item)
+                uiThread { item.isFavorite = true; adapter?.notifyDataSetChanged() }
+            }
+        else
+            doAsync {
+                context.database.removeFavorite(item)
+                uiThread { item.isFavorite = false; adapter?.notifyDataSetChanged() }
+            }
+
     }
 
     companion object {

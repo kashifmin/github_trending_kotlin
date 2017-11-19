@@ -2,6 +2,7 @@ package me.kashifminhaj.githubtrending.db
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import me.kashifminhaj.githubtrending.apis.Models
 import org.jetbrains.anko.db.*
 
 /**
@@ -45,4 +46,43 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
         onCreate(db)
     }
 
+    fun getFavoritesAsSet(): HashSet<Long> {
+        val values = HashSet<Long>()
+        this.readableDatabase.select(Tables.Favorites.NAME, Tables.Favorites.COL_ID)
+                .exec {
+                    while (moveToNext())
+                        values.add(getLong(0))
+                }
+        return values
+    }
+
+    fun setAsFavorite(item: Models.TrendingItem) {
+        this.writableDatabase
+                .insert(
+                        Tables.Owner.NAME,
+                        Tables.Owner.COL_LOGIN to item.owner.username,
+                        Tables.Owner.COL_URL to item.owner.url,
+                        Tables.Owner.COL_AVATAR to item.owner.avatarUrl
+                        )
+        this.writableDatabase
+                .insert(
+                        Tables.Favorites.NAME,
+                        Tables.Favorites.COL_ID to item.id,
+                        Tables.Favorites.COL_NAME to item.fullName,
+                        Tables.Favorites.COL_OWNER to item.owner.username,
+                        Tables.Favorites.COL_URL to item.url,
+                        Tables.Favorites.COL_STARS to item.stars
+                        )
+    }
+
+    fun removeFavorite(item: Models.TrendingItem) {
+        this.writableDatabase.delete(Tables.Favorites.NAME, args=Tables.Favorites.COL_ID to item.id)
+        this.writableDatabase.delete(Tables.Owner.NAME, args = Tables.Owner.COL_LOGIN to item.owner.username)
+    }
+
+
 }
+
+// Access property for Context
+val Context.database: DBHelper
+    get() = DBHelper.getInstance(getApplicationContext())

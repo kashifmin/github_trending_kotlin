@@ -7,12 +7,14 @@ import com.google.gson.annotations.SerializedName
  */
 object Models {
     data class TrendingItem(
+            @SerializedName("id") val id: Long,
             @SerializedName("full_name") val fullName: String,
             @SerializedName("url") val url: String,
             @SerializedName("stargazers_count") val stars: Int,
             @SerializedName("description") val description: String?,
             @SerializedName("language") val language: String,
-            @SerializedName("owner") val owner: Owner
+            @SerializedName("owner") val owner: Owner,
+            var isFavorite: Boolean
     )
     data class TrendingResponse(
             @SerializedName("total_count") val totalCount: String,
