@@ -64,9 +64,9 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
                 }
     }
 
-    fun filterFavorites(items: List<Models.TrendingItem>) {
+    fun filterFavorites(items: List<Models.TrendingItem>?) {
         val favs = this.context.database.getFavoritesAsSet()
-        items.map { it.isFavorite = it.id in favs }
+        items?.map { it.isFavorite = it.id in favs }
     }
 
     override fun onToggle(item: Models.TrendingItem, btn: ImageView) {

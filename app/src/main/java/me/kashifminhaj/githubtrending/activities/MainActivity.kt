@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import me.kashifminhaj.githubtrending.R
 import me.kashifminhaj.githubtrending.apis.GithubApi
+import me.kashifminhaj.githubtrending.fragments.FavoritesFragment
 import me.kashifminhaj.githubtrending.fragments.TrendingFragment
 import org.jetbrains.anko.toast
 
@@ -15,13 +16,24 @@ class MainActivity : AppCompatActivity() {
     val api: GithubApi by lazy {
         GithubApi.create()
     }
+    val favoritesFragment by lazy {
+        FavoritesFragment.newInstance()
+    }
+
+    val trendingFragment by lazy {
+        TrendingFragment.newInstance()
+    }
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         var fragment: Fragment? = null
         when (item.itemId) {
             R.id.navigation_trending -> {
-                fragment = TrendingFragment.newInstance()
+                fragment = trendingFragment
                 setTitle("Trending on Github")
+            }
+            R.id.navigation_favorites -> {
+                fragment = favoritesFragment
+                setTitle("Favorites")
             }
             else -> {
                 toast("Unknow menu")
