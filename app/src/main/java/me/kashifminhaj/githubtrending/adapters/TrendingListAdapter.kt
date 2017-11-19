@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_trending.view.*
 import me.kashifminhaj.githubtrending.R
 import me.kashifminhaj.githubtrending.apis.Models
@@ -26,14 +27,15 @@ class TrendingListAdapter(var data: List<Models.TrendingItem>): RecyclerView.Ada
         return data.size
     }
 
-    class ViewHolder(v: View): RecyclerView.ViewHolder(v) {
+    class ViewHolder(val v: View): RecyclerView.ViewHolder(v) {
         fun bindTrendingItem(item: Models.TrendingItem) {
             with(item) {
                 itemView.name.text = item.fullName
+                itemView.stars.text = item.stars.toString()
                 if(item.description != null){
                     itemView.description.text = item.description
                 }
-
+                Picasso.with(v.context).load(item.owner.avatarUrl).into(itemView.avatar)
             }
         }
 

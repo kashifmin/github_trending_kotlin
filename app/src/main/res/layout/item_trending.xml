@@ -14,12 +14,21 @@
         android:layout_height="match_parent"
         android:layout_margin="8dp"
         >
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_margin="5dp"
+            tools:src="@drawable/ic_home_black_24dp"
+            />
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/avatar"
             android:textAppearance="@style/TextAppearance.AppCompat.Medium"
             android:textColor="@color/colorPrimary"
+            android:maxLines="1"
             tools:text="kashifmin/somerepo"
             />
         <TextView
@@ -27,9 +36,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/name"
+            android:layout_toEndOf="@id/avatar"
             android:maxLines="2"
             android:text="No description."
             tools:text="A repo for doing this and that"
+            />
+
+        <ImageView
+            android:id="@+id/starImage"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_toStartOf="@id/stars"
+            android:src="@drawable/ic_star"
+            />
+        <TextView
+            android:id="@+id/stars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            tools:text="14"
             />
     </RelativeLayout>
 
