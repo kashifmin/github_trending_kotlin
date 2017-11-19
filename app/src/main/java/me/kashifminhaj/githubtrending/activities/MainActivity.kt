@@ -8,6 +8,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import me.kashifminhaj.githubtrending.R
 import me.kashifminhaj.githubtrending.apis.GithubApi
 import me.kashifminhaj.githubtrending.fragments.TrendingFragment
+import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +21,11 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.navigation_trending -> {
                 fragment = TrendingFragment.newInstance()
+                setTitle("Trending on Github")
+            }
+            else -> {
+                toast("Unknow menu")
+                return@OnNavigationItemSelectedListener false
             }
         }
         supportFragmentManager.beginTransaction().replace(R.id.contentFrame, fragment).commit()
@@ -31,7 +37,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+        mOnNavigationItemSelectedListener.onNavigationItemSelected(navigation.menu.getItem(0))
     }
+
+
 
 
 }

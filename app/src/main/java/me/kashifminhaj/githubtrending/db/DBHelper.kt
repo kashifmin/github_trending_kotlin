@@ -2,6 +2,7 @@ package me.kashifminhaj.githubtrending.db
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import android.util.Log
 import me.kashifminhaj.githubtrending.apis.Models
 import org.jetbrains.anko.db.*
 
@@ -36,6 +37,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
                 Tables.Favorites.COL_STARS to INTEGER,
                 Tables.Favorites.COL_URL to TEXT,
                 Tables.Favorites.COL_OWNER to TEXT,
+                Tables.Favorites.COL_LANGUAGE to TEXT,
+                Tables.Favorites.COL_DESCRIPTION to TEXT,
                 FOREIGN_KEY(Tables.Favorites.COL_OWNER, Tables.Owner.NAME, Tables.Owner.COL_LOGIN)
         )
     }
@@ -71,13 +74,32 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
                         Tables.Favorites.COL_NAME to item.fullName,
                         Tables.Favorites.COL_OWNER to item.owner.username,
                         Tables.Favorites.COL_URL to item.url,
-                        Tables.Favorites.COL_STARS to item.stars
+                        Tables.Favorites.COL_STARS to item.stars,
+                        Tables.Favorites.COL_LANGUAGE to item.language,
+                        Tables.Favorites.COL_DESCRIPTION to item.description
                         )
     }
 
     fun removeFavorite(item: Models.TrendingItem) {
         this.writableDatabase.delete(Tables.Favorites.NAME, args=Tables.Favorites.COL_ID to item.id)
         this.writableDatabase.delete(Tables.Owner.NAME, args = Tables.Owner.COL_LOGIN to item.owner.username)
+    }
+
+    fun getFavorites(): List<Models.TrendingItem>? {
+        var items: List<Models.TrendingItem>? = null
+        val query = "SELECT * FROM %s T1, %s T2 WHERE T1.owner = T2.login".format(Tables.Favorites.NAME, Tables.Owner.NAME)
+        val cursor = this.readableDatabase.rawQuery(query, null)
+        with(cursor) {
+            while (moveToNext()) {
+
+                val parser = TrendingItemParser()
+                items = parseList(parser)
+            }
+            Log.d("DB", "Column count" + columnCount)
+            for(c in columnNames)
+                Log.d("DB", "Columns" + c)
+        }
+        return items
     }
 
 

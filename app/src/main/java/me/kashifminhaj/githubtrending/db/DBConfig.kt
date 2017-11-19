@@ -11,13 +11,15 @@ object Tables {
         val COL_STARS = "stars"
         val COL_URL = "url"
         val COL_OWNER = "owner"
+        val COL_LANGUAGE = "language"
+        val COL_DESCRIPTION = "description"
     }
 
     object Owner {
         val NAME = "owner"
         val COL_LOGIN = "login"
         val COL_AVATAR = "avatar"
-        val COL_URL = "url"
+        val COL_URL = "owner_url"
     }
 }
 
