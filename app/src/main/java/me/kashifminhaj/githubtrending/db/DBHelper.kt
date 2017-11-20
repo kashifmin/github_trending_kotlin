@@ -25,7 +25,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
         db?.createTable(
                 Tables.Owner.NAME,
                 true,
-                Tables.Owner.COL_LOGIN to TEXT + PRIMARY_KEY,
+                Tables.Owner.COL_ID to INTEGER + PRIMARY_KEY,
+                Tables.Owner.COL_LOGIN to TEXT,
                 Tables.Owner.COL_AVATAR to TEXT,
                 Tables.Owner.COL_URL to TEXT
         )
@@ -63,6 +64,7 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
         this.writableDatabase
                 .insert(
                         Tables.Owner.NAME,
+                        Tables.Owner.COL_ID to item.id,
                         Tables.Owner.COL_LOGIN to item.owner.username,
                         Tables.Owner.COL_URL to item.owner.url,
                         Tables.Owner.COL_AVATAR to item.owner.avatarUrl
@@ -82,7 +84,7 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
 
     fun removeFavorite(item: Models.TrendingItem) {
         this.writableDatabase.delete(Tables.Favorites.NAME, "${Tables.Favorites.COL_ID} = ?", arrayOf(item.id.toString()))
-        //this.writableDatabase.delete(Tables.Owner.NAME, args = Tables.Owner.COL_LOGIN to item.owner.username)
+        this.writableDatabase.delete(Tables.Owner.NAME, "${Tables.Owner.COL_ID} = ?", arrayOf(item.id.toString()))
     }
 
     fun getFavorites(): List<Models.TrendingItem>? {

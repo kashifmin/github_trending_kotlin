@@ -17,6 +17,7 @@ object Tables {
 
     object Owner {
         val NAME = "owner"
+        val COL_ID = "owner_id"
         val COL_LOGIN = "login"
         val COL_AVATAR = "avatar"
         val COL_URL = "owner_url"
