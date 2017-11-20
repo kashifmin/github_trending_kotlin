@@ -14,6 +14,7 @@ import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.Spinner
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import me.kashifminhaj.githubtrending.R
 import me.kashifminhaj.githubtrending.adapters.TrendingListAdapter
@@ -44,6 +45,8 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
     var adapter: TrendingListAdapter? = null
     var data: List<Models.TrendingItem>? = null
 
+    val disposable = CompositeDisposable()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
     }
@@ -62,9 +65,14 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
         return v
     }
 
+    override fun onPause() {
+        super.onPause()
+        disposable.clear()
+    }
+
     fun getTrending(dateStr: String) {
         Log.d("getTrending", "Trending for date: " + dateStr)
-        api.getTrendingWeekly("created:>" + dateStr)
+        disposable.add(api.getTrendingWeekly("created:>" + dateStr)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -78,7 +86,7 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
                         {
                             showStatus(it.localizedMessage)
                         }
-                )
+                ))
     }
 
     fun getTrendingWeekly(){

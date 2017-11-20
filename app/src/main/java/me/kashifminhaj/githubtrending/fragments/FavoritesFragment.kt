@@ -49,7 +49,12 @@ class FavoritesFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListen
     }
 
     override fun onToggle(item: Models.TrendingItem, btn: ImageView) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        doAsync {
+            context.database.removeFavorite(item)
+            item.isFavorite = false
+            uiThread { adapter?.data = adapter?.data?.filter { it.isFavorite } ; adapter?.notifyDataSetChanged() }
+
+        }
     }
 
 
