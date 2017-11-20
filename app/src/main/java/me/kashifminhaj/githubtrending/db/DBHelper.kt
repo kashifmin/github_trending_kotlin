@@ -81,8 +81,8 @@ class DBHelper(ctx: Context) : ManagedSQLiteOpenHelper(ctx, DB.NAME, null, DB.VE
     }
 
     fun removeFavorite(item: Models.TrendingItem) {
-        this.writableDatabase.delete(Tables.Favorites.NAME, args=Tables.Favorites.COL_ID to item.id)
-        this.writableDatabase.delete(Tables.Owner.NAME, args = Tables.Owner.COL_LOGIN to item.owner.username)
+        this.writableDatabase.delete(Tables.Favorites.NAME, "${Tables.Favorites.COL_ID} = ?", arrayOf(item.id.toString()))
+        //this.writableDatabase.delete(Tables.Owner.NAME, args = Tables.Owner.COL_LOGIN to item.owner.username)
     }
 
     fun getFavorites(): List<Models.TrendingItem>? {
