@@ -7,4 +7,10 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string-array name="trending_when">
+        <item>Today</item>
+        <item>This week</item>
+        <item>This month</item>
+    </string-array>
 </resources>

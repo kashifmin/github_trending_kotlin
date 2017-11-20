@@ -10,7 +10,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ImageView
+import android.widget.Spinner
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import me.kashifminhaj.githubtrending.R
@@ -18,9 +20,14 @@ import me.kashifminhaj.githubtrending.adapters.TrendingListAdapter
 import me.kashifminhaj.githubtrending.apis.GithubApi
 import me.kashifminhaj.githubtrending.apis.Models
 import me.kashifminhaj.githubtrending.db.database
+import me.kashifminhaj.githubtrending.extensions.asFormat
+import me.kashifminhaj.githubtrending.extensions.toLastMonth
+import me.kashifminhaj.githubtrending.extensions.toLastWeek
+import me.kashifminhaj.githubtrending.extensions.toYesterday
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.find
 import org.jetbrains.anko.uiThread
+import java.util.*
 
 
 /**
@@ -28,7 +35,7 @@ import org.jetbrains.anko.uiThread
  * Use the [TrendingFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListener {
+class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListener, AdapterView.OnItemSelectedListener {
 
     val api: GithubApi by lazy {
         GithubApi.create()
@@ -46,24 +53,40 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
         // Inflate the layout for this fragment
         val v = inflater!!.inflate(R.layout.fragment_trending, container, false)
         recylerView = v?.findViewById<RecyclerView>(R.id.trendingRecylerView)
+        val spinner: Spinner? = v?.find(R.id.spinnerFrom)
+        spinner?.onItemSelectedListener = this
         adapter = TrendingListAdapter(data, this)
         recylerView?.layoutManager = LinearLayoutManager(context)
         recylerView?.adapter = adapter
-        if(data == null) getTrending()
+        //if(data == null) getTrending()
         return v
     }
 
-    fun getTrending() {
-        api.getTrendingWeekly("created:>2017-11-17")
+    fun getTrending(dateStr: String) {
+        Log.d("getTrending", "Trending for date: " + dateStr)
+        api.getTrendingWeekly("created:>" + dateStr)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    Log.d("trending", "got reponse :)")
+                    Log.d("trending", "got reponse :) count: " + it.items.count())
                     filterFavorites(it.items)
                     data = it.items
                     adapter?.data = it.items
                     adapter?.notifyDataSetChanged()
                 }
+    }
+
+    fun getTrendingWeekly(){
+        val date = Date().toLastWeek().asFormat("yyyy-MM-dd")
+        getTrending(date)
+    }
+    fun getTrendingMonthly(){
+        val date = Date().toLastMonth().asFormat("yyyy-MM-dd")
+        getTrending(date)
+    }
+    fun getTrendingToday(){
+        val date = Date().toYesterday().asFormat("yyyy-MM-dd")
+        getTrending(date)
     }
 
     fun filterFavorites(items: List<Models.TrendingItem>?) {
@@ -87,6 +110,17 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
 
     fun showStatus(msg: String) {
         Snackbar.make(activity.find(R.id.contentFrame), msg, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, v: View?, pos: Int, id: Long) {
+        when(pos) {
+            0 -> getTrendingToday()
+            1 -> getTrendingWeekly()
+            2 -> getTrendingMonthly()
+        }
     }
 
     companion object {
