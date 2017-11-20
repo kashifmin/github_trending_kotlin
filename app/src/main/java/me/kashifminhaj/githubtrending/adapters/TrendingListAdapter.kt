@@ -13,9 +13,9 @@ import me.kashifminhaj.githubtrending.apis.Models
 /**
  * Created by kashif on 18/11/17.
  */
-class TrendingListAdapter(var data: List<Models.TrendingItem>, val toggleListener: OnFavoriteToggleListener): RecyclerView.Adapter<TrendingListAdapter.ViewHolder>() {
+class TrendingListAdapter(var data: List<Models.TrendingItem>?, val toggleListener: OnFavoriteToggleListener): RecyclerView.Adapter<TrendingListAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder?, position: Int) {
-        holder?.bindTrendingItem(data[position])
+        holder?.bindTrendingItem(data!![position])
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ViewHolder {
@@ -25,8 +25,12 @@ class TrendingListAdapter(var data: List<Models.TrendingItem>, val toggleListene
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        if (data != null)
+            return data!!.size
+        else
+            return 0
     }
+
 
     class ViewHolder(val v: View, val toggleListener: OnFavoriteToggleListener): RecyclerView.ViewHolder(v) {
         fun bindTrendingItem(item: Models.TrendingItem) {

@@ -2,6 +2,7 @@ package me.kashifminhaj.githubtrending.fragments
 
 
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -18,6 +19,7 @@ import me.kashifminhaj.githubtrending.apis.GithubApi
 import me.kashifminhaj.githubtrending.apis.Models
 import me.kashifminhaj.githubtrending.db.database
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.find
 import org.jetbrains.anko.uiThread
 
 
@@ -33,6 +35,7 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
     }
     var recylerView: RecyclerView? = null
     var adapter: TrendingListAdapter? = null
+    var data: List<Models.TrendingItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +44,13 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_trending, container, false)
-    }
-
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        recylerView = view?.findViewById<RecyclerView>(R.id.trendingRecylerView)
-        getTrending()
+        val v = inflater!!.inflate(R.layout.fragment_trending, container, false)
+        recylerView = v?.findViewById<RecyclerView>(R.id.trendingRecylerView)
+        adapter = TrendingListAdapter(data, this)
+        recylerView?.layoutManager = LinearLayoutManager(context)
+        recylerView?.adapter = adapter
+        if(data == null) getTrending()
+        return v
     }
 
     fun getTrending() {
@@ -57,10 +60,9 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
                 .subscribe {
                     Log.d("trending", "got reponse :)")
                     filterFavorites(it.items)
-                    adapter = TrendingListAdapter(it.items, this)
-                    recylerView?.adapter = adapter
-                    recylerView?.layoutManager = LinearLayoutManager(context)
-
+                    data = it.items
+                    adapter?.data = it.items
+                    adapter?.notifyDataSetChanged()
                 }
     }
 
@@ -73,14 +75,18 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
         if(!item.isFavorite)
             doAsync {
                 context.database.setAsFavorite(item)
-                uiThread { item.isFavorite = true; adapter?.notifyDataSetChanged() }
+                uiThread { item.isFavorite = true; showStatus("Marked as favorite"); adapter?.notifyDataSetChanged() }
             }
         else
             doAsync {
                 context.database.removeFavorite(item)
-                uiThread { item.isFavorite = false; adapter?.notifyDataSetChanged() }
+                uiThread { item.isFavorite = false; showStatus("Removed favorite"); adapter?.notifyDataSetChanged() }
             }
 
+    }
+
+    fun showStatus(msg: String) {
+        Snackbar.make(activity.find(R.id.contentFrame), msg, Snackbar.LENGTH_SHORT).show()
     }
 
     companion object {
