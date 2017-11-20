@@ -67,13 +67,18 @@ class TrendingFragment : Fragment(), TrendingListAdapter.OnFavoriteToggleListene
         api.getTrendingWeekly("created:>" + dateStr)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    Log.d("trending", "got reponse :) count: " + it.items.count())
-                    filterFavorites(it.items)
-                    data = it.items
-                    adapter?.data = it.items
-                    adapter?.notifyDataSetChanged()
-                }
+                .subscribe(
+                        {
+                            Log.d("trending", "got reponse :) count: " + it.items.count())
+                            filterFavorites(it.items)
+                            data = it.items
+                            adapter?.data = it.items
+                            adapter?.notifyDataSetChanged()
+                        },
+                        {
+                            showStatus(it.localizedMessage)
+                        }
+                )
     }
 
     fun getTrendingWeekly(){
